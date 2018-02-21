@@ -54,3 +54,4 @@ subplot(2,2,4)
 plot(f(1:N/2),mag(1:N/2)*2/N); %绘出Nyquist频率之前随频率变化的振幅
 xlabel('Frequency/Hz');
 ylabel('Amplitude');title('N=1024');grid on;
+
