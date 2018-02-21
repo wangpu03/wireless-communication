@@ -1,28 +1,27 @@
 function fk=rayleigh(fdts,fdmax,fcar,Trms,nprofile,K,L)
 
-% This function generates a frequency-selective (2D)
-% Rayleigh fading process. Specs as follows:
+% This function generates a frequency-selective (2D)Rayleigh fading process. Specs as follows:
 %	1) Doppler power spectrum - Clarke's model;
 %	2) N paths, path delay tau(n) has exponential distribution C*exp(-tau(n)/Trms);
 %	3) Count only tau(n)'s in [0, 5Trms];
 %	4) Equally-powered paths, according to Hoeher (Trans. VT, 1992)
 %	5) Composite transmitting/receiving filter: sinc function
 %
-%	fk	: complex output vector (channel frequency responses)
+%	fk	    : complex output vector (channel frequency responses)
 %	fdts	: fd_max*T_symbol
 %	fdmax	: fd_max
 %	fcar	: carrier separation (OFDM: fcar=1/t. t=ts-delta)
 %	Trms	: rms delay
 %	nprofile: channel profile: 
-%		  1 - 	path delay distribution: exponential
-%			delay-power profile    : uniform
-%			Doppler power spectrum : Clarke's model
+%		  1 - path delay distribution: exponential
+%			  delay-power profile    : uniform
+%			  Doppler power spectrum : Clarke's model
 %
-%		  2 - 	path delay distribution: uniform
-%			delay-power profile    : exponential
-%			Doppler power spectrum : flat
-%	K 	: time index, k>= 0, k=0; initialization
-%	L 	: number of carriers
+%		  2 - path delay distribution: uniform
+%			  delay-power profile    : exponential
+%			  Doppler power spectrum : flat
+%	K 	    : time index, k>= 0, k=0; initialization
+%	L 	    : number of carriers
 %
 % Prepared by Chengyang Li, 11/27/01
 
@@ -52,7 +51,6 @@ if (nprofile==1)
 	h = zeros(L,K);
 	for k=1:K
 		for l=1:L
-
 			%temp = exp(1i*pi2*(Phi+fd*(k-1)-fcar*(l-1)*tau));
                       % typo corrected on 4/5/02                        
 			temp = exp(im*pi2*(Phi+fd*(k-1)-fcar*(l-1)*tau));
@@ -62,13 +60,13 @@ if (nprofile==1)
 
 	h = h./sqrt(N);
 
-        % 4/5/02 comment out next two lines
+    % 4/5/02 comment out next two lines
 	%fk = h./norm(h(:,1));	
 	%fk = fk.';
-        fk=h.';
+    fk=h.';
 
 
-        % 4/5/02 Ufuk: the following accomplish pulse shaping   
+% 4/5/02 Ufuk: the following accomplish pulse shaping   
 else
 	N = 5;
 	tau_n = rand(N,1) * taumax;	% path delay uniformly distributed in [0,taumax]

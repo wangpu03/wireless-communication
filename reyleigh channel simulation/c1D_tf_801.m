@@ -1,17 +1,16 @@
-% 2x1D Wiener CE for OFDM systems - first 1D in time domain, followed by 1D in frequency domain
+% 2x1D Wiener CE for OFDM systems 
+% first 1D in time domain, followed by 1D in frequency domain
 %
-
-%               i)  Channel: exponentially decaying profile, Jakes' Doppler spectrum
-%                ii) 802.11a parameters
-%                iii)802.11a pilot spacing (short + long + pilot-tones, Nf=12,Nt=1), with
-%                       rectangular (as the standard) or diagonal pattern.
+% i)  Channel: exponentially decaying profile, Jakes' Doppler spectrum
+% ii) 802.11a parameters
+% iii)802.11a pilot spacing (short + long + pilot-tones, Nf=12,Nt=1), 
+%     with rectangular (as the standard) or diagonal pattern.
 %
-%       2. 3/27/2002
-%    i)  After time domain interpolation, more interploated channel coefficients should 
+% i)  After time domain interpolation, more interploated channel coefficients should 
 %     be used in freq. domain interpolation. (changed from Ufuk's code.)
-%    ii)  For the pilots pattern of 802.11a, freq. first is not an appropriate order
-%       since N_f = 12 is larger than the rule-of-thumb Nyquist rate. So OneD_ft.m
-%                       is NOT implemented FOR 802.11a parameters.
+% ii) For the pilots pattern of 802.11a, freq. first is not an appropriate order
+%     since N_f = 12 is larger than the rule-of-thumb Nyquist rate. So OneD_ft.m
+%     is NOT implemented FOR 802.11a parameters.
 %
 % Note: coded for OFDM trained CE survey project
 
@@ -36,7 +35,7 @@ fcar=fs/L;  % subcarrier spacing in Hz
 % Doppler from the following values: 0Hz, 5Hz, 25Hz, 50Hz, or 100Hz
 fDmax = 0; 	
 
-% pilotpattern selection:
+% pilot pattern selection:
 %   0: rect. grid (as the standard)
 %   1: diagonal distri
 %           xoooooo
@@ -53,8 +52,7 @@ tau_max = 5 * tau_rms;
 nprofile = 1;
 
 Ts=4e-6;                             %ofdm block duration
-% It seems the above Ts includes CP,(64+16)/20e6, since C=16;   % length of cyclic
-% prefix 
+% It seems the above Ts includes CP,(64+16)/20e6, since C=16 the length of cyclic prefix 
 
 % Decision on number of taps used in Wiener filter:
 %   Notice 10 taps used in wiener2d.m, i.e., mtap = 10. We use 5 taps first 
@@ -88,7 +86,7 @@ stones=[-21 -7 7 21];
 ftones=stones+32;
 
 % short training symbols
-sshort=[ -24 -20 -16 -12 -8 -4   4 8 12 16 20 24 ];  
+sshort=[ -24 -20 -16 -12 -8 -4 4 8 12 16 20 24 ];  
 fshort=sshort+32;
 
 % long training symbols
@@ -145,8 +143,8 @@ for Krun=1:lKvec
 
  
     % Plot pilot positions to verify 
-    %plot(coord_pilot(:,1),coord_pilot(:,2),'x');
-    %xlabel('OFDM symbol (frequency) index'); ylabel('subcarrier (time) index');
+    % plot(coord_pilot(:,1),coord_pilot(:,2),'x');
+    % xlabel('OFDM symbol (frequency) index'); ylabel('subcarrier (time) index');
     
     % the vector of all pilots
     Ntap = j;   % Ques?
@@ -160,7 +158,7 @@ for Krun=1:lKvec
     for drun=1:mcrun    
         % Channel H(L,K)
         fprintf('*');
-        H = rayleigh2d(fmaxt,fDmax,fcar,tau_rms,nprofile,K,L).';
+        H = rayleigh(fmaxt,fDmax,fcar,tau_rms,nprofile,K,L).';
         %	H: complex output vector (channel frequency responses)
         % L: the number of carriers, K: the number of symbols
   
@@ -234,12 +232,12 @@ for Krun=1:lKvec
                         for j=1:t2tap   % find correlation of pilots
                             distemp=coord_yt(i,:)- coord_yt(j,:);                            
                             dist_t=distemp(:,2);                                            
-                            Phit(i,j) = rho_jakes(dist_t,fmaxt,nprofile);; 
+                            Phit(i,j) = ray_jakes(dist_t,fmaxt,nprofile);; 
                         end
                         
                         %find correlation of pilots with data
                         distth=coord_yt(i,2)-k;                                      
-                        thetat(i) = rho_jakes(distth,fmaxt,nprofile);
+                        thetat(i) = ray_jakes(distth,fmaxt,nprofile);
                     end     
                     
                     % The pilots will have noise on them so include. 
@@ -310,11 +308,11 @@ for Krun=1:lKvec
                         for j=1:f2tap     
                             distemp=coord_yk(i,:)- coord_yk(j,:);
                             dist_f=distemp(:,1);          
-                            Phif(i,j) = rho_exp(dist_f,taumaxf,tau_rms,nprofile);
+                            Phif(i,j) = ray_exp(dist_f,taumaxf,tau_rms,nprofile);
                         end                        
 
                         disfth=coord_yk(i,1)-l;
-                        thetaf(i)=rho_exp(disfth,taumaxf,tau_rms,nprofile);           
+                        thetaf(i)=ray_exp(disfth,taumaxf,tau_rms,nprofile);           
                     end     
 
                     % The pilots will have noise on them so include. 

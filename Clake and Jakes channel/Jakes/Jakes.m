@@ -1,0 +1,50 @@
+% plot Jakes channel model
+clc
+clear 
+fd=900;     % the maxium doppler frequency
+Ts=1e-6;    % sample time
+M=2^12;     
+t=[0:M-1]*Ts;
+f=[-M/2:M/2-1]/(M*Ts*fd);
+Ns=5000;    % samples
+t_state=0;  % 开始采样时刻
+
+[h,t_state]=Jakes_model(fd,Ts,Ns,t_state,1,0);  % generate channel
+
+subplot(311)
+plot([1:Ns]*Ts,10*log10(abs(h)));
+str=sprintf('channel model by Clarke with fm=%d[Hz],Ts=%d[mus]',fd,Ts);
+title(str);
+subplot(323)
+hist(abs(h),50);
+
+subplot(324)
+hist(angle(h),50);
+
+
+% 信道的自相关函数
+temp=zeros(2,Ns);
+for i=1:Ns
+    j=i:Ns;
+    temp(1:2,j-i+1)=temp(1:2,j-i+1)+[h(i)'*h(j);ones(1,Ns-i+1)];
+end
+for k=1:M
+    simulated_corr(k)=real(temp(1,k))./temp(2,k);
+end
+classical_corr=besselj(0,2*pi*fd*t);
+
+classical_y=fftshift(fft(classical_corr));
+simulated_y=fftshift(fft(simulated_corr));
+subplot(325)
+plot(t,abs(classical_corr),'k-',t,abs(simulated_corr),'r:');
+title(['Autocorrelation,fd=',num2str(fd),'Hz']);
+grid on
+xlabel('delay\[s]')
+ylabel('Correlation')
+legend('Classical','Simulatd');
+subplot(326)
+plot(f,abs(classical_y),'k-',t,abs(simulated_y),'r:');
+title(['Doppler Spectrum,fd=',num2str(fd),'Hz']);
+axis([-1 1 0 600])
+legend('Classical','Simulated')
+

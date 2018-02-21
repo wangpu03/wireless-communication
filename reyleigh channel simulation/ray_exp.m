@@ -1,17 +1,15 @@
 function y=ray_exp(x,taumaxf,Trms,nprofile)
 
-%     this subroutine computes the channel correlation matrix 
-%     (freq. domain);
-%	nprofil: channel profile: 
-%		  1 - 	path delay distribution: exponential - tau(n) ~ exp(-tau(n)/Trms);
-%			delay-power profile    : uniform - 1/sqrt(N) - Hoeher's suggestion
-%			Doppler power spectrum : Clarke's model
+% this subroutine computes the channel correlation matrix (freq. domain);
+% nprofil: channel profile: 
+% 1 - path delay distribution: exponential - tau(n) ~ exp(-tau(n)/Trms);
+%	  delay-power profile    : uniform - 1/sqrt(N) - Hoeher's suggestion
+%	  Doppler power spectrum : Clarke's model
 %
-%		  2 - 	path delay distribution: uniform
-%			delay-power profile    : exponential
-%			Doppler power spectrum : flat
-%	
-
+% 2 - path delay distribution: uniform
+%     delay-power profile    : exponential
+%	  Doppler power spectrum : flat
+%*************************************************************************%
 
 pi2=2*pi;
 
