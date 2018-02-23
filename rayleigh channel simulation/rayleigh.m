@@ -1,6 +1,7 @@
 function fk=rayleigh(fdts,fdmax,fcar,Trms,nprofile,K,L)
 
-% This function generates a frequency-selective (2D)Rayleigh fading process. Specs as follows:
+% This function generates a frequency-selective (2D)Rayleigh fading process. 
+% Specs as follows:
 %	1) Doppler power spectrum - Clarke's model;
 %	2) N paths, path delay tau(n) has exponential distribution C*exp(-tau(n)/Trms);
 %	3) Count only tau(n)'s in [0, 5Trms];
