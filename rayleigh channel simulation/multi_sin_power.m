@@ -1,6 +1,8 @@
 %% Theoretical Power of Multiple Sinusoids
 
 clc;
+clear;
+close all;
 Fs = 1024;
 t = 0:1/Fs:1-(1/Fs);
 
@@ -14,6 +16,7 @@ F2 = 200;
 x = A0 + A1*sin(2*pi*F1*t) + A2*sin(2*pi*F2*t);
 
 % let's look at a portion of our signal
+figure(1);
 idx = 1:200;
 plot(t(idx),x(idx));
 grid on;
@@ -27,6 +30,7 @@ hgcf.Color = [1 1 1];
 %% the theoretical average power of each complex sinusoid
 power_theoretical = A0^2 + (A1^2/4)*2 + (A2^2/4)*2
 
+figure(2);
 % use the periodogram function to calculate and plot the power spectrum of the signal.
 periodogram(x, hamming(length(x)),[],Fs,'centered','power');
 
@@ -34,9 +38,9 @@ periodogram(x, hamming(length(x)),[],Fs,'centered','power');
 % 方括号中，前者是功率，后者是频率，构成功率谱
 [Pxx, F] = periodogram(x, hamming(length(x)), [], Fs, 'centered', 'psd');
 
-power_freqdomain = bandpower(Pxx,F,'psd');
+power_freqdomain = bandpower(Pxx,F,'psd')
 
-power_timedomain = sum(abs(x).^2)/length(x);
+power_timedomain = sum(abs(x).^2)/length(x)
 
 %% Relationship between Power Spectrum, Power Spectral Density and ENBW
 Pxx = periodogram(x, hamming(length(x)), [], Fs, 'centered', 'psd');

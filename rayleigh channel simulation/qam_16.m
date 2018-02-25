@@ -170,6 +170,7 @@ rng default;
 dataIn = randi([0 1], numBits,1);
 
 % define a convolutional coding trellis for a rate 2/3 code
+% 该种样式是已经规定的。
 tPoly = poly2trellis([5 4],[23 35 0; 0 5 13]);
 codeRate = 2/3;
 dataEnc = convenc(dataIn,tPoly);
@@ -200,11 +201,13 @@ dataSymbolsOut = qamdemod(rxFiltSignal,M);
 
 dataOutMatrix = de2bi(dataSymbolsOut,k);
 codedDataOut = dataOutMatrix(:);
+
+% viterbi 解码
 traceBack = 16;
 numCodeWords = floor(length(codedDataOut)*2/3);
 dataOut = vitdec(codedDataOut(1:numCodeWords*3/2),tPoly,traceBack,'cont','hard');
-
 decDelay = 2*traceBack;                                     % Decoder delay, in bits
+
 [numErrors, ber] = ...
    biterr(dataIn(1:end-decDelay),dataOut(decDelay+1:end));       
 
