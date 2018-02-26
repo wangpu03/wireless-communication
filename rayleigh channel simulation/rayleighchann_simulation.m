@@ -68,7 +68,7 @@ gain_vector  = [0 -1.0 -2.0 -3.0 -8.0 -17.2 -20.8];  			% Average path gains (dB
 max_Doppler_shift  = 160;      									% Maximum Doppler shift of diffuse components (Hz)
 rayleigh_chan = rayleighchan(T,max_Doppler_shift,delay_vector,gain_vector);
 
-%% 经过rayleigh信道，且将保持该信号
+%% 经过rayleigh信道，且将保持该信道
 rayleigh_chan.ResetBeforeFiltering = 0;
 data_after_rayleigh = filter(rayleigh_chan,source); 
 
