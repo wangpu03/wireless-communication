@@ -35,15 +35,15 @@ source = A*sin(2*pi*f1*t);
 power_source = bandpower(Pxx_hamming, F, 'psd');
 power_source_db = 10*log10(power_source/2);
 
-num = 1000;
+num = 1:1000;
 
-power_source_array(1:num) = power_source_db;
+power_source_array(num) = power_source_db;
 
-power_tag_array(1:num) = 0;
+power_tag_array(num) = 0;
 
-power_pt_array(1:num) = 0;
+power_pt_array(num) = 0;
 
-for index = 1:num
+for index = num
 	%% 构造rayleigh信道
 	delay_vector = [0, 50, 110, 170, 290, 310]*1e-9; 	% Discrete delays of four-path channel (s)
 	gain_vector  = [0 -3.0 -10.0 -18.0 -26.0 -32.0]; 	% Average path gains (dB)			
@@ -62,7 +62,7 @@ for index = 1:num
 	power_tag = bandpower(Pxx_hamming_tag,F_tag,'psd');
 	power_tag_db = 10*log10(power_tag/2);
 
-	power_pt_array(index) = power_tag_db;
+	power_tag_array(index) = power_tag_db;
 
 	%%************************************************************
 	%% 反射路径 
@@ -86,3 +86,8 @@ for index = 1:num
 	power_pt_array(index) = power_pt_db;
 
 end
+
+plot(num,power_pt_array);
+hold on;
+plot(num,power_tag_array);
+
