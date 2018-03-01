@@ -6,7 +6,7 @@
 % 170						-18.0 
 % 290						-26.0
 % 310						-32.0
-
+%% 之后的信号都这个模型的基础上进行的修改
 
 %% 仿真方案二，设备之间的密钥建立，但是在tag能够区分整个信号时，即不叠加两个信号
 
@@ -18,14 +18,32 @@ f1 = 900e6;				% 信号频率900MHz,信号周期为10/9 ns
 N  = 10;				% 信号周期内的采样点数
 Fs = N*f1;				% sampling frequency, 采样频率
 T = 1/Fs;  				% sampling period, 采样周期
-L = 1000*N; 			% length of signal
+L = 10000*N; 			% length of signal
 
-t = (0:L-1)*T;			% 采样时间s，fs的值越大，出来的波形失真越小
+t = (0:(L-1))*T;			% 采样时间s，fs的值越大，出来的波形失真越小
 A = 4;					% 信号幅值
+
+
+
+%% 构造调制1和-1序列
+f_seq = 22.5e6;   %%	45MHz
+value = 1;
+for index = 1:L
+		base_signal(index) = value;
+	if mod(index, (Fs/f_seq)/2) == 0
+		value = 0-value;
+	end
+end
+
+% base_signal=square(2*pi*f_seq*t);
+% sum(base_signal)
+
 
 
 %% 构造初始信号
 source = A*sin(2*pi*f1*t);
+
+plot(t(1:200),source(1:200),t(1:200),base_signal(1:200))
 
 %% 计算初始信号的功率
 [Pxx_hamming, F]= periodogram(source, hamming(length(source)),[],Fs,'centered', 'psd');
@@ -33,7 +51,7 @@ power_source = bandpower(Pxx_hamming, F, 'psd');
 power_source_db = 10*log10(power_source/2);
 
 
-num = 1:10;
+num = 1:1000;
 
 power_source_array(num) = power_source_db;
 
@@ -94,8 +112,11 @@ for index = num
 
 	%%**********************************************************************************************
 	%% Alice的反射路径，将信号反射给Bob
-	coeffi_a = 1.0;						%% 反射因子
-	data_a_back = data_tag_a.*coeffi_a;
+	coeffi_a = 0.9;						%% 反射因子
+	data_a_coeffi = data_tag_a.*coeffi_a;
+
+	%% 进行ASK调制，使用已经设置好的方波序列
+	data_a_back = data_a_coeffi.*base_signal;
 
 	%% 构造rayleigh信道，表示Alice与Bob之间的信道
 	delay_vector_ab = [0, 4, 10, 19, 31, 43]*1e-9; 	% Discrete delays of four-path channel (s)
@@ -107,9 +128,12 @@ for index = num
 	rayleigh_chan_ab.ResetBeforeFiltering = 0;
 	back_after_rayleigh_ab = filter(rayleigh_chan_ab,data_a_back); 
 
+	%% Bob接收的信号为Alice反射信号和PT直传信号的叠加
+	data_total_b = back_after_rayleigh_ab + data_after_rayleigh_b;
+
 	%% 为叠加信号添加高斯噪声
 	SNR_tag_b = 9;
-	data_b = awgn(back_after_rayleigh_ab,SNR_tag_b,'measured');
+	data_b = awgn(data_total_b,SNR_tag_b,'measured');
 
 	%% 计算在Bob端接收信号的功率
 	[Pxx_hamming_b, F_b] = periodogram(data_b,hamming(length(data_b)),[],Fs,'centered','psd');
@@ -120,8 +144,11 @@ for index = num
 
 	%%**********************************************************************************************
 	%% bob的反射路径，将信号反射给Alice
-	coeffi_b = 1.0;						%% 反射因子
-	data_b_back = data_tag_b.*coeffi_b;
+	coeffi_b = 0.9;						%% 反射因子
+	data_b_coeffi = data_tag_b.*coeffi_b;
+
+	%% 进行ASK调制，使用已经设置好的方波序列
+	data_b_back = data_b_coeffi.*base_signal;
 
 	%% 使用与Alice到Bob之间的信道模型
 	% %% 构造rayleigh信道，表示Alice与Bob之间的信道
@@ -134,9 +161,12 @@ for index = num
 	rayleigh_chan_ab.ResetBeforeFiltering = 0;
 	back_after_rayleigh_ba = filter(rayleigh_chan_ab,data_b_back); 
 
+	%% Alice接收的信号为Bob反射信号和PT直传信号的叠加
+	data_total_a = back_after_rayleigh_ba + data_after_rayleigh_a;
+
 	%% 为叠加信号添加高斯噪声
 	SNR_tag_a = 8;
-	data_a = awgn(back_after_rayleigh_ba,SNR_tag_a,'measured');
+	data_a = awgn(data_total_a,SNR_tag_a,'measured');
 
 
 	%% 计算在Alice端接收信号的功率
@@ -156,9 +186,17 @@ hold on;
 plot(num,power_b_array);
 hold on;
 plot(num,power_a_array);
-legend('PT-a','pt-b','total-b','total-a');
+legend('PT-a','PT-b','total-b','total-a');
 grid on;
 
+
+%% 计算序列的相关性
+r = corr2(power_b_array,power_a_array)
+
+alice = (power_a_array-power_tag_a_array).*power_tag_a_array;
+bob = (power_b_array-power_tag_b_array).*power_tag_b_array;
+
+cor = corr2(alice,bob)
 
 figure;
 plot(num,power_a_array.*power_tag_a_array);
@@ -166,7 +204,3 @@ hold on;
 plot(num,power_b_array.*power_tag_b_array);
 legend('alice','bob');
 grid on;
-
-%% 计算序列的相关性
-r = corr2(power_b_array,power_a_array)
-r = corr2(power_a_array.*power_tag_a_array,power_b_array.*power_tag_b_array)
