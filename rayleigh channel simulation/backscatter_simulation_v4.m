@@ -1,5 +1,5 @@
 % Table is a rayleigh fading channel model in indoor
-% Excess tap delay[ns/10]    	Relative power[dB]
+% Excess tap delay[ns]    	Relative power[dB]
 % 0  						0.0
 % 50  						-3.0
 % 110						-10.0
@@ -7,7 +7,8 @@
 % 290						-26.0
 % 310						-32.0
 
-% backscattering simulation
+% 仿真方案一，设备与射频源之间的密钥建立
+% 射频信号为单一的正弦信号
 
 %% 循环测试正弦信号PT与tag模型之间的通信模型，其中包括信号初始功率，tag端的功率，发射回来再PT端的功率
 
@@ -25,7 +26,7 @@ t = (0:L-1)*T;			% 采样时间s，fs的值越大，出来的波形失真越小
 A = 4;					% 信号幅值
 
 %% 设置高斯噪声
-SNR_tag = 10;
+SNR_tag = 8;
 
 %% 构造初始信号
 source = A*sin(2*pi*f1*t);
@@ -70,7 +71,7 @@ for index = num
 	coeffi = 1.0;
 	data_back = data_tag.*coeffi;
 
-	%% 反射后，信号经过再次经过rayleigh信道
+	%% 反射后，信号再次经过rayleigh信道
 	rayleigh_chan.ResetBeforeFiltering = 0;
 	back_after_rayleigh = filter(rayleigh_chan,data_back); 
 
@@ -87,7 +88,21 @@ for index = num
 
 end
 
-plot(num,power_pt_array);
+figure;
+plot(num(1:200),power_pt_array(1:200),'*-');
 hold on;
-plot(num,power_tag_array);
+plot(num(1:200),power_tag_array(1:200),'+-');
+legend('RSS in PT','RSS in tag');
 
+result1 = power_source_array+power_pt_array;
+result2 = power_tag_array*2;
+
+figure;
+plot(num(1:200),result1(1:200),'*-');
+hold on;
+plot(num(1:200),result2(1:200),'+-');
+
+
+r = corr2(power_pt_array,power_tag_array)
+
+r = corr2(result1,result2)
