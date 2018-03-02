@@ -23,8 +23,6 @@ L = 10000*N; 			% length of signal
 t = (0:(L-1))*T;			% 采样时间s，fs的值越大，出来的波形失真越小
 A = 4;					% 信号幅值
 
-
-
 %% 构造调制1和-1序列
 f_seq = 22.5e6;   %%	45MHz
 value = 1;
@@ -198,9 +196,18 @@ bob = (power_b_array-power_tag_b_array).*power_tag_b_array;
 
 cor = corr2(alice,bob)
 
+
+
 figure;
-plot(num,power_a_array.*power_tag_a_array);
+plot(num,(power_a_array-power_tag_a_array).*power_tag_a_array);
 hold on;
-plot(num,power_b_array.*power_tag_b_array);
+plot(num,(power_b_array-power_tag_b_array).*power_tag_b_array);
+legend('alice','bob');
+grid on;
+
+figure;
+plot(num,10*log10((power_a_array-power_tag_a_array).*power_tag_a_array));
+hold on;
+plot(num,10*log10((power_b_array-power_tag_b_array).*power_tag_b_array));
 legend('alice','bob');
 grid on;
