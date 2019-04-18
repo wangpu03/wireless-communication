@@ -26,16 +26,16 @@ clear;
 close all;
 
 f1 = 900e6;				% 信号频率900MHz,信号周期为10/9 ns
-N  = 10;				% 信号周期内的采样点数
+N  = 8;					% 信号周期内的采样点数
 Fs = N*f1;				% sampling frequency, 采样频率
 T = 1/Fs;  				% sampling period, 采样周期
-L = 100*N; 			% length of signal
+L = 600*N; 				% length of signal
 
 t = (0:L-1)*T;			% 采样时间s，fs的值越大，出来的波形失真越小
 A = 0.1;				% 信号幅值
 
 %% 设置高斯噪声
-SNR_tag = 6;
+SNR_tag = 20;
 
 %% 构造初始信号
 source = A*sin(2*pi*f1*t);
@@ -49,7 +49,7 @@ power_source = bandpower(Pxx_hamming, F, 'psd');
 power_source_db = 10*log10(power_source/2);
 %***************************************************************
 
-num = 1:200;
+num = 1:600;
 power_source_array(num) = power_source;
 power_tag_array(num) = 0;
 power_pt_array(num) = 0;
@@ -61,7 +61,7 @@ for index = num
 	%%************************************************************
 	%% Alice 接收来自PT的信号
 	%% 构造rayleigh信道
-	delay_vector = [0, 50, 110, 170, 290, 310]*1e-9; 	% Discrete delays of four-path channel (s)
+	delay_vector = [0, 50, 110, 170, 290, 310]*1e-10; 	% Discrete delays of four-path channel (s)
 	gain_vector  = [0 -3.0 -10.0 -18.0 -26.0 -32.0]; 	% Average path gains (dB)			
 	max_Doppler_shift = 50;  					% Maximum Doppler shift of diffuse components (Hz)			
 	rayleigh_chan = rayleighchan(T,max_Doppler_shift,delay_vector,gain_vector);
@@ -83,7 +83,7 @@ for index = num
 	%%************************************************************
 	%% Eve 接收来自PT的信号
 	%% 构造rayleigh信道	
-	delay_vector_e = [0, 52, 113, 172, 295, 317]*1e-9; 	% Discrete delays of four-path channel (s)
+	delay_vector_e = [0, 52, 113, 172, 295, 317]*1e-10; 	% Discrete delays of four-path channel (s)
 	gain_vector_e  = [0 -3.2 -10.6 -17.3 -26.5 -33.1]; 	% Average path gains (dB)			
 	max_Doppler_shift_e = 53;  					% Maximum Doppler shift of diffuse components (Hz)			
 	rayleigh_chan_ptEve = rayleighchan(T,max_Doppler_shift_e,delay_vector_e,gain_vector_e);	
@@ -104,7 +104,7 @@ for index = num
 	%%************************************************************
 	%% 反射路径 
 	%% 发射因子为0.7
-	coeffi = 0.6;
+	coeffi = 0.2;
 	data_back = data_tag.*coeffi;
 
 	%% 反射后，信号再次经过rayleigh信道
@@ -126,7 +126,7 @@ for index = num
 	%%************************************************************
 	%%Eve 接收来自Alice的信号
 	%% 构造rayleigh信道		
-	delay_vector_ae = [0, 35, 89, 165, 271, 326]*1e-9; 	% Discrete delays of four-path channel (s)
+	delay_vector_ae = [0, 35, 89, 165, 271, 326]*1e-10; 	% Discrete delays of four-path channel (s)
 	gain_vector_ae  = [0 -1.8 -8.0 -15.9 -25.0 -31.4]; 	% Average path gains (dB)			
 	max_Doppler_shift_ae = 30;  					% Maximum Doppler shift of diffuse components (Hz)
 	rayleigh_chan_AEve = rayleighchan(T,max_Doppler_shift_ae,delay_vector_ae,gain_vector_ae);
@@ -143,8 +143,6 @@ for index = num
 	power_tag_db_AEve = 10*log10(power_tag_AEve/2);
 
 	power_tag_array_AEve(index) = power_tag_AEve;
-
-
 end
 
 figure;
@@ -173,6 +171,7 @@ legend('Alice','PT','reflection sensed at Eve');
 ylabel('RSSI(dB)');
 xlabel('Samples');
 grid on;
+r = corr2(power_tag_array,power_pt_array)
 
 result1 = power_source_array.*power_pt_array/0.7;
 result2 = power_tag_array.^2;

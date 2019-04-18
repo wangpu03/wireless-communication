@@ -69,7 +69,7 @@ for index = num
 	%%**********************************************************************************************
 	%% 测试PT传输信号到Alice时的信号功率
 	%% 构造rayleigh信道一，表示PT与Alice之间的信道
-	delay_vector_a = [0, 50, 110, 170, 290, 310]*1e-9; 	% Discrete delays of four-path channel (s)
+	delay_vector_a = [0, 50, 110, 170, 290, 310]*1e-10; 	% Discrete delays of four-path channel (s)
 	gain_vector_a  = [0 -3.0 -10.0 -18.0 -26.0 -32.0]; 	% Average path gains (dB)			
 	max_Doppler_shift_a = 50;  					% Maximum Doppler shift of diffuse components (Hz)			
 	rayleigh_chan_a = rayleighchan(T,max_Doppler_shift_a,delay_vector_a,gain_vector_a);
@@ -79,7 +79,7 @@ for index = num
 	data_after_rayleigh_a = filter(rayleigh_chan_a,source); 
 
 	%% 设置高斯噪声与信号的信噪比
-	SNR_tag_a = 8;
+	SNR_tag_a = 10;
 	%% 添加高斯噪声
 	data_tag_a = awgn(data_after_rayleigh_a,SNR_tag_a,'measured');
 
@@ -94,7 +94,7 @@ for index = num
 	%%**********************************************************************************************
 	%% 测试PT传输信号到Bob时的信号功率
 	%% 构造rayleigh信道二，表示PT与Bob之间的信道
-	delay_vector_b = [0, 55, 120, 190, 310, 330]*1e-9; 	% Discrete delays of four-path channel (s)
+	delay_vector_b = [0, 55, 120, 190, 310, 330]*1e-10; 	% Discrete delays of four-path channel (s)
 	gain_vector_b  = [0 -4.0 -11.0 -20.0 -28.0 -36.0]; 	% Average path gains (dB)			
 	max_Doppler_shift_b = 55;  							% Maximum Doppler shift of diffuse components (Hz)			
 	rayleigh_chan_b = rayleighchan(T,max_Doppler_shift_b,delay_vector_b,gain_vector_b);
@@ -118,7 +118,7 @@ for index = num
 	%%**********************************************************************************************
 	%% 测试PT传输信号到Eve时的信号功率
 	%% 构造rayleigh信道，表示PT与Eve之间的信道
-	delay_vector_e = [0, 68, 130, 169, 295, 333]*1e-9; 	% Discrete delays of four-path channel (s)
+	delay_vector_e = [0, 68, 130, 169, 295, 333]*1e-10; 	% Discrete delays of four-path channel (s)
 	gain_vector_e  = [0 -4.5 -11.6 -21.7 -29.9 -39.4]; 	% Average path gains (dB)			
 	max_Doppler_shift_e = 20;  					% Maximum Doppler shift of diffuse components (Hz)			
 	rayleigh_chan_e = rayleighchan(T,max_Doppler_shift_e,delay_vector_e,gain_vector_e);
@@ -135,14 +135,14 @@ for index = num
 
 	%%**********************************************************************************************
 	%% Alice的反射路径，将信号反射给Bob
-	coeffi_a = 0.6;						%% 反射因子
+	coeffi_a = 0.7;						%% 反射因子
 	data_a_coeffi = data_tag_a.*coeffi_a;
 
 	%% 进行ASK调制，使用已经设置好的方波序列
 	data_a_back = data_a_coeffi.*base_signal;
 
 	%% 构造rayleigh信道，表示Alice与Bob之间的信道
-	delay_vector_ab = [0, 4, 10, 19, 31, 43]*1e-9; 	% Discrete delays of four-path channel (s)
+	delay_vector_ab = [0, 4, 10, 19, 31, 43]*1e-10; 	% Discrete delays of four-path channel (s)
 	gain_vector_ab  = [0 -1.0 -5.0 -10.0 -18.0 -26.0]; 	% Average path gains (dB)			
 	max_Doppler_shift_ab = 100;  					% Maximum Doppler shift of diffuse components (Hz)			
 	rayleigh_chan_ab = rayleighchan(T,max_Doppler_shift_ab,delay_vector_ab,gain_vector_ab);
@@ -155,7 +155,7 @@ for index = num
 	data_total_b = back_after_rayleigh_ab + data_after_rayleigh_b;
 
 	%% 为叠加信号添加高斯噪声
-	SNR_tag_b = 9;
+	SNR_tag_b = 10;
 	data_b = awgn(data_total_b,SNR_tag_b,'measured');
 
 	%% 计算在Bob端接收信号的功率
@@ -168,7 +168,7 @@ for index = num
 
 	%%**********************************************************************************************
 	%% 构造rayleigh信道，表示Alice与Eve之间的信道
-	delay_vector_ae = [0, 8, 21, 32, 43, 59]*1e-9; 	% Discrete delays of four-path channel (s)
+	delay_vector_ae = [0, 8, 21, 32, 43, 59]*1e-10; 	% Discrete delays of four-path channel (s)
 	gain_vector_ae  = [0 -1.8 -6.4 -12.1 -20.8 -30.2]; 	% Average path gains (dB)			
 	max_Doppler_shift_ae = 63;  					% Maximum Doppler shift of diffuse components (Hz)			
 	rayleigh_chan_ae = rayleighchan(T,max_Doppler_shift_ae,delay_vector_ae,gain_vector_ae);
@@ -184,7 +184,7 @@ for index = num
 
 	%%**********************************************************************************************
 	%% bob的反射路径，将信号反射给Alice
-	coeffi_b = 0.6;						%% 反射因子
+	coeffi_b = 0.7;						%% 反射因子
 	data_b_coeffi = data_tag_b.*coeffi_b;
 
 	%% 进行ASK调制，使用已经设置好的方波序列
