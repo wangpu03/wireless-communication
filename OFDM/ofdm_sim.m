@@ -1,4 +1,4 @@
-
+%% simulation of OFDM communication 
 clear;
 clc;
 
@@ -7,10 +7,10 @@ clc;
 mod_method = 'QPSK';
 
 % IFFT/FFT size
-n_fft = 64;
+n_fft = 128;
 
 % size of cyclic prefix extension
-n_cpe = 16;
+n_cpe = 32;
 
 % target SNR (dB)
 snr =20;
@@ -29,17 +29,17 @@ mod_methods = {'BPSK', 'QPSK','8PSK','16QAM', '32QAM','64QAM'};
 mod_order = find(ismember(mod_methods, mod_method));
 
 %% input data to binary stream
-% im  = imread('Picture1.bmp');
-% im_bin = dec2bin(im(:))';
-% im_bin = im_bin(:);
-% 
+im  = imread('Picture1.bmp');
+im_bin = dec2bin(im(:))';
+im_bin = im_bin(:);
+
 % zero_ints = zeros(128,1)+255;
 % zero_bits = dec2bin(zero_ints(:));
 % im_bin = zero_bits(:);
 
-rand_ints = randi(2,256,1)-1;
-rand_bits = dec2bin(rand_ints(:));
-im_bin = rand_bits(:);
+% rand_ints = randi(2,25600,1)-1;
+% rand_bits = dec2bin(rand_ints(:));
+% im_bin = rand_bits(:);
 %% binary stream to symbols 
 % Parse binary stream into mod_order bit symbols
 % pads input signal to appropriate length
@@ -102,21 +102,28 @@ x_s = x_cpe(:);
 
 %% add awgn
 % calculation data power
-% data_pwr_cpe_add=0;
-% for i = 50:1:54
-%     data_pwr_cpe_add = data_pwr_cpe_add + mean(abs(x_s(80*(i-1)+1:80*(i-1)+16).^2));
-% end
-% data_pwr_cpe = data_pwr_cpe_add/5;
-% data_pwr_cpe = mean(abs(x_s(241:320).^2));
+data_pwr = mean(abs(x_s).^2);
 
-data_pwr = mean(abs(x_s.^2));
+% calculate the cp data power for n frame OFDM
+x_s_cp = x_s(9:32);
+for n = 1:1:9
+    x_s_cp =[x_s_cp(:)' x_s(160*n+9:160*n+32)']';
+end
+data_cpe_pwr = mean(abs(x_s_cp).^2);
+
+% data_pwr_cpe_add=0;
+% for i = 1:1:5
+%     data_pwr_cpe_add = data_pwr_cpe_add + mean(abs(x_s(160*(i-1)+9:160*(i-1)+32).^2));
+% end
+% data_pwr_cpe = data_pwr_cpe_add/i;
+%data_pwr_cpe = mean(abs(x_s(241:320).^2));
 
 % add noise to channel 
 noise_pwr = data_pwr/10^(snr/10);
 noise = normrnd(0,sqrt(noise_pwr/2),size(x_s))+normrnd(0,sqrt(noise_pwr/2),size(x_s))*1i;
-% x_s_noise = x_s+noise;
+x_s_noise = x_s+noise;
 
-x_s_noise = x_s;
+%x_s_noise = x_s;
 
 % measure SNR
 snr_meas = 10*log10(mean(abs(x_s.^2))/mean(abs(noise.^2)));
@@ -126,10 +133,19 @@ snr_meas = 10*log10(mean(abs(x_s.^2))/mean(abs(noise.^2)));
 % with the 'same' returns only the central part of the convolution
 g = exp(-(0:n_taps-1));
 g = g/norm(g);
-%x_s_noise_fading = conv(x_s_noise,g,'same');
+x_s_noise_fading = conv(x_s_noise,g,'same');
 
-x_s_noise_fading = conv(x_s_noise,g);
+%x_s_noise_fading = conv(x_s_noise,g);
 
+% calculation data power after channel 
+% data_pwr_cpe_add_ac=0;
+% for i = 1:1:5
+%     data_pwr_cpe_add_ac = data_pwr_cpe_add_ac + mean(abs(x_s_noise_fading(160*(i-1)+9:160*(i-1)+32).^2));
+% end
+% data_pwr_cpe_ac = data_pwr_cpe_add_ac/i;
+%data_pwr_cpe = mean(abs(x_s(241:320).^2));
+
+data_pwr_ac = mean(abs(x_s_noise_fading.^2));
 
 %% use FFT to move to frequency domain
 % remmove cyclic prefix extension and shift from serial to parallel
