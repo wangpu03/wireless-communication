@@ -15,9 +15,8 @@ function PDP=exp_pdp(tau_d,Ts,A_dB,norm_flag)
 if nargin<4, norm_flag=1; end     % normalizes
 if nargin<3, A_dB=-20; end        % 20dB below
 sigma_tau = tau_d;                % the mean excess delay or RMS delay spread
-A = 10^(A_dB/10);                 % the ratio of non-negligible path power to the first path power
-lmax=ceil(-tau_d*log(A)/Ts);      % get max. path index (2.8)/Ts
-
+A = 10^(A_dB/10)                 % the ratio of non-negligible path power to the first path power
+lmax=ceil(-tau_d*log(A)/Ts) % get max. path index (2.8)/Ts
 % Computes normalization factor for power normalization
 if norm_flag
   p0=(1-exp(-Ts/sigma_tau))/(1-exp(-(lmax+1)*Ts/sigma_tau)); % (2.10)
